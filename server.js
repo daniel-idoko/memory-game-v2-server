@@ -296,6 +296,7 @@ io.on("connection", (socket) => {
 				});
 
     	  socket.on("end-game", (room) => {
+		  console.log(room)
     	  	  const clientIds = Array.from(rooms[room]);
 			      roomStates[room].host =clientIds[0];
 			      roomStates[room].friend =clientIds[1];
