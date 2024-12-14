@@ -1,22 +1,11 @@
-const express = require("express");
-const http = require("http");
-const socketIo = require("socket.io");
-
-const app = express();
-const server = http.createServer(app);
-
-const io = socketIo(server, {
-    cors: {
-        origin: ["https://memory-game-v2-theta.vercel.app", "http://localhost:3000"], // Add your frontend URLs here
-        methods: ["GET", "POST"],
-        allowedHeaders: ["my-custom-header"],
-        credentials: true,
-    },
-});
-
-app.get("/", (req, res) => {
-    res.send("Server is running!");
-});
+const io = require("socket.io")(3000, {
+	cors: {
+		origin: ["memory-game-v2-theta.vercel.app"],
+		methods: ["GET", "POST"],
+	    allowedHeaders: ["my-custom-header"],
+	    credentials: true,
+		}
+})
 
 const rooms = {};
 const roomStates = {};
@@ -152,6 +141,7 @@ function testConnection(testRoom){
 			io.to(clientLeft).emit("connection-broken");
 
 			delete rooms[testRoom];
+			delete roomStates[testRoom];
 
 	    if (roomConnectionIntervals.has(testRoom)) {
 		    clearInterval(roomConnectionIntervals.get(testRoom));
@@ -165,7 +155,7 @@ function testConnection(testRoom){
 
 // Entry Function
 io.on("connection", (socket) => {
-	console.log("New WebSocket connection:", socket.id);
+	// console.log("New WebSocket connection:", socket.id);
 
 // HANDLE CONNECTION
 	  socket.on("join-room", ({roomCode, type}) => {
@@ -296,17 +286,18 @@ io.on("connection", (socket) => {
 				});
 
     	  socket.on("end-game", (room) => {
-		  console.log(room)
     	  	  const clientIds = Array.from(rooms[room]);
 			      roomStates[room].host =clientIds[0];
 			      roomStates[room].friend =clientIds[1];
 
-            	io.to(room).emit("game-ended");
+            	delete rooms[room];
+							delete roomStates[room];
 
-            	 if (roomIntervals.has(room)) {
-							    clearInterval(roomIntervals.get(room));
-							    roomIntervals.delete(room);
+							 if (roomConnectionIntervals.has(room)) {
+							    clearInterval(roomConnectionIntervals.get(room));
+							    roomConnectionIntervals.delete(room);
 							 }
+							 io.to(room).emit("game-ended");
 		    });
 
 		    socket.on("restart-game", (room) => {
@@ -319,21 +310,17 @@ io.on("connection", (socket) => {
 			    socket.on("disconnect", () => {
 			    	if(rooms[room]){
 			    		rooms[room].delete(socket.id);
+
+			    		delete rooms[room];
+							delete roomStates[room];
 			    	}
-			      if (rooms[room].size === 0) {
-			        delete rooms[room]; // Clean up empty rooms
-			      }
+
+			    	// if (rooms[room].size === 0) {
+				    //   delete rooms[room]; // Clean up empty rooms
+				    // }
+			      
 			      console.log(`${socket.id} disconnected from room: ${room}`);
 			    });
 
 	  });	  
-});
-
-
-
-
-
-const port = process.env.PORT || 3000;
-server.listen(port, () => {
-    console.log(`Server running on port ${port}`);
 });
