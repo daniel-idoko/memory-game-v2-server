@@ -1,8 +1,15 @@
-const io = require("socket.io")((process.env.PORT || 3000, {
-	cors: {
-		origin: ["https://memory-game-v2-theta.vercel.app"],
-	}
-})
+const express = require('express');
+const http = require('http');
+const socketIo = require('socket.io');
+
+const app = express();
+const server = http.createServer(app);
+
+const io = socketIo(server, {
+  cors: {
+    origin: ["https://memory-game-v2-theta.vercel.app"], // your frontend domain
+  },
+});
 
 const rooms = {};
 const roomStates = {};
@@ -312,4 +319,13 @@ io.on("connection", (socket) => {
 			    });
 
 	  });	  
+});
+
+
+
+
+
+const port = process.env.PORT || 3000;
+server.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
