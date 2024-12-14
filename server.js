@@ -11,6 +11,10 @@ const io = socketIo(server, {
   },
 });
 
+app.get("/", (req, res) => {
+    res.status(200).send("Server is running!");
+});
+
 const rooms = {};
 const roomStates = {};
 const roomConnectionIntervals = new Map();
