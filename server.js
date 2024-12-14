@@ -158,7 +158,7 @@ function testConnection(testRoom){
 
 // Entry Function
 io.on("connection", (socket) => {
-	// console.log("New WebSocket connection:", socket.id);
+	console.log("New WebSocket connection:", socket.id);
 
 // HANDLE CONNECTION
 	  socket.on("join-room", ({roomCode, type}) => {
