@@ -1,6 +1,6 @@
 const io = require("socket.io")(3000, {
 	cors: {
-		origin: ["https://memory-game-v2-theta.vercel.app/"],
+		origin: ["https://memory-game-v2-theta.vercel.app"],
 	}
 })
 
